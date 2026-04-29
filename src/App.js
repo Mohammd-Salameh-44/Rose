@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { HashRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { createContext, useContext, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect } from "react";
@@ -49,7 +49,7 @@ function AppContent() {
 
   return (
     <TransitionContext.Provider value={{ goWithFlash }}>
-      
+
       {/* 🔥 Blur Flash */}
       <AnimatePresence>
         {showFlash && (
@@ -86,8 +86,8 @@ function AppContent() {
 /* ================= ROOT ================= */
 export default function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <AppContent />
-    </BrowserRouter>
+    </HashRouter>
   );
 }
