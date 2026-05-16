@@ -3,17 +3,56 @@ import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "../components/Navbar";
 import { useLang } from "../LanguageContext";
 import { usePageTransition } from "../App";
+import { useCart } from "../CartContext";
+import { db } from "../firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 export default function Chocolate() {
   const [selected, setSelected] = useState(null);
   const [products, setProducts] = useState([]);
-  const { t, toggleLang } = useLang();
+  const [search, setSearch] = useState("");
+  const [quantity, setQuantity] = useState(1);
+  const [toast, setToast] = useState("");
+
+  const { t } = useLang();
   const { goWithFlash } = usePageTransition();
 
+  const {
+    addToCart
+  } = useCart();
+
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("rosaProducts")) || [];
-    setProducts(saved.filter((p) => p.page === "chocolate" && !p.hidden));
+    const loadProducts = async () => {
+      const snap = await getDocs(collection(db, "products"));
+
+      const data = snap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      setProducts(data.filter((p) => p.page === "chocolate" && !p.hidden));
+    };
+
+    loadProducts();
   }, []);
+
+  const filteredProducts = products.filter(
+    (p) =>
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      p.desc.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const getStep = (product) => {
+    return product.unit === "kg" ? 0.05 : 1;
+  };
+
+  const formatQuantity = (value, unit) => {
+    return unit === "kg" ? value.toFixed(3) : value;
+  };
+
+  const getUnitLabel = (unit) => {
+    return unit === "kg" ? "Kg" : "Piece";
+  };
 
   return (
     <div className="container">
@@ -21,7 +60,19 @@ export default function Chocolate() {
 
       <h2 className="page-title">{t.chocolate}</h2>
 
-      {products.length === 0 ? (
+      <div className="search-card glass">
+        <input
+          type="text"
+          placeholder={t.searchChocolate}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="search-input"
+        />
+
+        <button className="search-btn">🔍</button>
+      </div>
+
+      {filteredProducts.length === 0 ? (
         <div className="empty-card glass">
           <div className="empty-icon">🍫</div>
           <h3>{t.noProductsTitle}</h3>
@@ -29,15 +80,34 @@ export default function Chocolate() {
         </div>
       ) : (
         <div className="grid">
-          {products.map((p) => (
+          {filteredProducts.map((p) => (
             <motion.div
               key={p.id}
               layoutId={`card-${p.id}`}
               className="glass card"
-              onClick={() => setSelected(p)}
             >
-              <motion.img layoutId={`img-${p.id}`} src={p.image} alt={p.name} />
-              <motion.h3 layoutId={`title-${p.id}`}>{p.name}</motion.h3>
+              <motion.img
+                layoutId={`img-${p.id}`}
+                src={p.image}
+                alt={p.name}
+                loading="lazy"
+              />
+
+              <div className="card-info">
+                <motion.h3 layoutId={`title-${p.id}`}>
+                  {p.name}
+                </motion.h3>
+
+                <button
+                  className="more-btn"
+                  onClick={() => {
+                    setSelected(p);
+                    setQuantity(p.unit === "kg" ? 0.05 : 1);
+                  }}
+                >
+                  More
+                </button>
+              </div>
             </motion.div>
           ))}
         </div>
@@ -56,12 +126,24 @@ export default function Chocolate() {
               layoutId={`card-${selected.id}`}
               className="glass modal"
               onClick={(e) => e.stopPropagation()}
-              transition={{ type: "spring", stiffness: 220, damping: 20 }}
+              transition={{
+                type: "spring",
+                stiffness: 220,
+                damping: 20
+              }}
             >
+              <button
+                className="modal-close-x"
+                onClick={() => setSelected(null)}
+              >
+                ×
+              </button>
+
               <motion.img
                 layoutId={`img-${selected.id}`}
                 src={selected.image}
                 alt={selected.name}
+                loading="lazy"
               />
 
               <motion.h2 layoutId={`title-${selected.id}`}>
@@ -70,14 +152,72 @@ export default function Chocolate() {
 
               <p>{selected.desc}</p>
 
-              <button onClick={() => setSelected(null)}>Close</button>
+              {selected.showPrice && (
+                <p className="card-price">
+                  ₪ {selected.price} / {getUnitLabel(selected.unit)}
+                </p>
+              )}
+
+              <div className="product-quantity">
+                <button
+                  onClick={() => {
+                    const step = getStep(selected);
+                    setQuantity((q) => Math.max(step, q - step));
+                  }}
+                >
+                  −
+                </button>
+
+                <span>
+                  {formatQuantity(quantity, selected.unit)} {getUnitLabel(selected.unit)}
+                </span>
+
+                <button
+                  onClick={() => {
+                    const step = getStep(selected);
+                    setQuantity((q) => q + step);
+                  }}
+                >
+                  +
+                </button>
+              </div>
+
+              <button
+                className="add-cart-btn"
+                onClick={() => {
+                  addToCart(selected, quantity);
+                  setToast("Product added to cart");
+                  setSelected(null);
+
+                  setTimeout(() => {
+                    setToast("");
+                  }, 2000);
+                }}
+              >
+                Add To Cart
+              </button>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            className="toast-card glass"
+            initial={{ opacity: 0, y: 30, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 30, scale: 0.9 }}
+            transition={{ duration: 0.3 }}
+          >
+            ✅ {toast}
           </motion.div>
         )}
       </AnimatePresence>
 
       <div className="footer glass">
         <p>© 2026 ROSA Coffee & Flowers</p>
+
         <button onClick={() => goWithFlash("/contact")}>
           {t.contact}
         </button>

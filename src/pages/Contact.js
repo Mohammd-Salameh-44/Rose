@@ -2,7 +2,7 @@ import Navbar from "../components/Navbar";
 import { useLang } from "../LanguageContext";
 export default function Contact() {
   const { t } = useLang();
-  
+
   return (
     <div className="container">
       <Navbar />
@@ -43,6 +43,18 @@ export default function Contact() {
             <span>✉️</span>
             Email
           </a>
+
+          <a
+            href="https://play.google.com/store/apps/details?id=xyz.kotsh.waslny&pcampaignid=web_share" className="contact-item">
+            <span>📲</span>
+            Android Waslni App
+          </a>
+
+          <a
+            href="https://apps.apple.com/il/app/وصلني-القدس/id6753804097" className="contact-item">
+            <span>🍎</span>
+            IOS Waslni App
+          </a>
         </div>
       </div>
 
@@ -51,10 +63,16 @@ export default function Contact() {
 
         <iframe
           title="ROSA Location"
-          src="https://www.google.com/maps?q=ROSA%20Coffee%20Flowers&output=embed"
+          src="https://maps.google.com/maps?q=31.729194,35.243556&z=17&output=embed"
+          width="100%"
+          height="320"
+          style={{
+            border: 0,
+            borderRadius: "24px"
+          }}
+          allowFullScreen=""
           loading="lazy"
-          allowFullScreen
-        ></iframe>
+        />
 
         <a
           className="map-link"
