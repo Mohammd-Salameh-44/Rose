@@ -1,13 +1,13 @@
 import { HashRouter, Routes, Route, useNavigate } from "react-router-dom";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 
 import { useLang } from "./LanguageContext";
 import { CartProvider } from "./CartContext";
 
 import "leaflet/dist/leaflet.css";
+import "./styles/main.css";
 
 import Home from "./pages/Home";
 import Sweets from "./pages/Sweets";
@@ -19,9 +19,19 @@ import Contact from "./pages/Contact";
 import Admin from "./pages/Admin";
 import Cart from "./pages/Cart";
 
-import "./styles/main.css";
+const TransitionContext = createContext(null);
 
-const TransitionContext = createContext();
+const ALLOWED_ROUTES = [
+  "/",
+  "/sweets",
+  "/chocolate",
+  "/nuts",
+  "/flowers",
+  "/others",
+  "/contact",
+  "/admin",
+  "/cart",
+];
 
 export function usePageTransition() {
   return useContext(TransitionContext);
@@ -30,14 +40,19 @@ export function usePageTransition() {
 function AppContent() {
   const navigate = useNavigate();
   const [showFlash, setShowFlash] = useState(false);
-
   const { lang } = useLang();
 
   useEffect(() => {
     document.body.dir = lang === "ar" ? "rtl" : "ltr";
+    document.documentElement.lang = lang || "en";
   }, [lang]);
 
   const goWithFlash = (path) => {
+    if (!ALLOWED_ROUTES.includes(path)) {
+      console.warn("Blocked navigation to unknown route:", path);
+      return;
+    }
+
     setShowFlash(true);
 
     setTimeout(() => {
@@ -62,7 +77,8 @@ function AppContent() {
               position: "fixed",
               inset: 0,
               background: "rgba(255, 240, 250, 0.7)",
-              zIndex: 9999
+              zIndex: 9999,
+              pointerEvents: "none",
             }}
           />
         )}
@@ -78,6 +94,7 @@ function AppContent() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="*" element={<Home />} />
       </Routes>
     </TransitionContext.Provider>
   );
@@ -91,15 +108,16 @@ export default function App() {
         toastOptions={{
           duration: 3000,
           style: {
-            zIndex: 9999999999,
+            zIndex: 999999,
             borderRadius: "16px",
             background: "rgba(255, 255, 255, 0.92)",
             color: "#4a1830",
             boxShadow: "0 18px 40px rgba(0, 0, 0, 0.18)",
-            backdropFilter: "blur(14px)"
-          }
+            backdropFilter: "blur(14px)",
+          },
         }}
       />
+
       <HashRouter>
         <AppContent />
       </HashRouter>

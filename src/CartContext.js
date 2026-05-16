@@ -24,17 +24,17 @@ export function CartProvider({ children }) {
         amount !== null
           ? amount
           : isKg
-          ? 0.05
-          : 1;
+            ? 0.05
+            : 1;
 
       if (existing) {
         return prev.map((item) =>
           item.id === product.id
             ? {
-                ...item,
-                quantity:
-                  item.quantity + quantityToAdd
-              }
+              ...item,
+              quantity:
+                item.quantity + quantityToAdd
+            }
             : item
         );
       }
@@ -68,10 +68,10 @@ export function CartProvider({ children }) {
 
         return item.id === id
           ? {
-              ...item,
-              quantity:
-                item.quantity + step
-            }
+            ...item,
+            quantity:
+              item.quantity + step
+          }
           : item;
       })
     );
@@ -86,10 +86,10 @@ export function CartProvider({ children }) {
 
           return item.id === id
             ? {
-                ...item,
-                quantity:
-                  item.quantity - step
-              }
+              ...item,
+              quantity:
+                item.quantity - step
+            }
             : item;
         })
         .filter((item) => item.quantity > 0)

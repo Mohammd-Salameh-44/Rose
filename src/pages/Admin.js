@@ -259,15 +259,15 @@ export default function Admin() {
           products.map((p) =>
             p.id === editId
               ? {
-                  ...p,
-                  name,
-                  desc,
-                  image: imageUrl,
-                  page,
-                  price: Number(price),
-                  unit,
-                  showPrice
-                }
+                ...p,
+                name,
+                desc,
+                image: imageUrl,
+                page,
+                price: Number(price),
+                unit,
+                showPrice
+              }
               : p
           )
         );
@@ -326,9 +326,9 @@ export default function Admin() {
       products.map((p) =>
         p.id === id
           ? {
-              ...p,
-              hidden: newHidden
-            }
+            ...p,
+            hidden: newHidden
+          }
           : p
       )
     );
@@ -346,9 +346,9 @@ export default function Admin() {
       products.map((p) =>
         p.id === id
           ? {
-              ...p,
-              showPrice: newShowPrice
-            }
+            ...p,
+            showPrice: newShowPrice
+          }
           : p
       )
     );
@@ -392,9 +392,9 @@ export default function Admin() {
         orders.map((order) =>
           order.id === orderId
             ? {
-                ...order,
-                status: newStatus
-              }
+              ...order,
+              status: newStatus
+            }
             : order
         )
       );
@@ -681,9 +681,8 @@ export default function Admin() {
                   <h3>Order #{order.orderNumber}</h3>
 
                   <span
-                    className={`status-badge status-${
-                      order.status || "pending"
-                    }`}
+                    className={`status-badge status-${order.status || "pending"
+                      }`}
                   >
                     {getStatusLabel(order.status || "pending")}
                   </span>
