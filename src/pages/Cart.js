@@ -177,14 +177,8 @@ export default function Cart() {
     }, 700);
 
     return () => clearTimeout(timer);
-  }, [checkoutOpen, customerLocation, total]);, [
-    checkoutOpen,
-    customerName,
-    customerPhone,
-    customerAddress,
-    customerLocation,
-    total
-  ]);
+  }, [checkoutOpen, customerLocation, total]);
+
 
   const placeOrder = async () => {
     if (!customerName || !customerPhone || !customerAddress) {
